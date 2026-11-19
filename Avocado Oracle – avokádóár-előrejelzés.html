@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="hu"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Avocado Oracle – avokádóár-előrejelzés</title>
+<style>
+:root{--bg:#f4f7ee;--card:#fff;--tx:#1d2b17;--mut:#667a5c;--g:#3f7d20;--g2:#8cc152;--r:#d6452d;--ln:#dfe8d4;--pit:#7a4a21;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1a0c;--card:#17250f;--tx:#e8f2dc;--mut:#93a888;--g:#8cc152;--g2:#4f8a2b;--r:#ff6b4f;--ln:#27391c}}
+:root[data-theme="dark"]{--bg:#0f1a0c;--card:#17250f;--tx:#e8f2dc;--mut:#93a888;--g:#8cc152;--g2:#4f8a2b;--r:#ff6b4f;--ln:#27391c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1000px;margin:0 auto;padding:18px 14px 40px}
+h1{margin:0;font-size:clamp(22px,5vw,34px)}h1 span{color:var(--g)}
+.sub{color:var(--mut);margin:4px 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+select,.btn{background:var(--card);color:var(--tx);border:1px solid var(--ln);border-radius:10px;padding:8px 10px;font:inherit}
+.btn{cursor:pointer;background:var(--g);color:#fff;border-color:var(--g)}
+:root[data-theme="dark"] .btn,:root:not([data-theme="light"]) .btn{color:#10200a}
+.warn{background:color-mix(in srgb,var(--pit) 18%,transparent);border:1px dashed var(--pit);border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:12px 14px}
+.k{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}.v{font-size:26px;font-weight:700}.s{font-size:13px;color:var(--mut)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:720px){.grid{grid-template-columns:1fr}}
+h2{font-size:15px;margin:0 0 2px}svg{width:100%;height:auto;display:block}
+.sc{max-height:300px;overflow-y:auto}
+.rg{display:grid;grid-template-columns:110px 1fr 48px;gap:6px;align-items:center;font-size:12px;cursor:pointer;padding:1px 0}
+.rg:hover{background:var(--ln)}.rg i{display:block;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--g2),var(--r))}
+.verdict{border-left:5px solid var(--g);margin-top:10px}
+.lg{font-size:12px;color:var(--mut);display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+</style></head><body><main>
+<h1>🥑 Avocado <span>Oracle</span>™</h1>
+<p class="sub">Komoly backtest, komolytalan arc. Mennyire lehet előre látni az avokádó árát – és mikor csúszik el az egész?</p>
+<div class="bar">
+<select id="ty"></select><select id="rg"></select>
+<select id="md"><option value="naive">Naiv (utolsó ár)</option><option value="snaive">Szezonális naiv (tavaly ilyenkor)</option><option value="sdrift" selected>Szezonális drift (Oracle)</option><option value="damp">Csillapított trend</option></select>
+<select id="hz"><option value="1">1 hét</option><option value="4" selected>4 hét</option><option value="8">8 hét</option><option value="12">12 hét</option></select>
+<label class="btn">avocado.csv betöltése<input id="f" type="file" accept=".csv" hidden></label>
+</div>
+<div id="warn" class="warn">⚠️ <b>DEMO mód:</b> szintetikus adat látszik (valós szezonalitás + kitalált 2017-es hiány-sokk). Töltsd be a Kaggle <code>avocado.csv</code>-t, és ugyanez fut a valós adaton.</div>
+<div class="kpis" id="kp"></div>
+<div class="card"><h2>Tény vs. előrejelzés (rolling-origin backtest)</h2><div class="s">Piros sáv = ahol a hiba a saját átlagának 2×-ese fölé megy: „avokádó-pánik zóna".</div><div id="ch"></div>
+<div class="lg"><span>━ tényleges ár</span><span style="color:var(--g)">┅ előrejelzés</span><span style="color:var(--r)">▮ pánik zóna</span></div></div>
+<div class="grid" style="margin-top:10px">
+<div class="card"><h2>Hibák hónapok szerint</h2><div class="s">Mikor tévedünk a legtöbbet? (átlagos %-hiba)</div><div id="mo"></div></div>
+<div class="card"><h2>Hiba a horizonttal</h2><div class="s">Az előrejelzés úgy öregszik, mint a félbevágott avokádó.</div><div id="hc"></div></div>
+</div>
+<div class="card" style="margin-top:10px"><h2>Régiók ranglistája (kattints!)</h2><div class="s">Legkiszámíthatatlanabb elöl. Aktuális modell és horizont.</div><div class="sc" id="rk"></div></div>
+<div class="card verdict" id="vd"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id),HU=['jan','feb','márc','ápr','máj','jún','júl','aug','szept','okt','nov','dec'];
+let DATA={},DEMO=true;
+const M={naive:(p,i)=>p[i],snaive:(p,i,h)=>p[i+h-52],sdrift:(p,i,h)=>p[i]+.5*(p[i+h-52]-p[i-52]),
+damp:(p,i,h)=>{const s=(p[i]-p[i-8])/8;let k=0;for(let j=1;j<=h;j++)k+=.85**j;return p[i]+s*k}};
+function rng(s){return()=>(s=(s*16807)%2147483647)/2147483647}
+function demo(){const R=rng(42),regs=[['TotalUS',.04,1.1],['California',.09,1.2],['Houston',.12,.95],['Chicago',.1,1.25],['NewYork',.1,1.35],['PhoenixTucson',.15,.98],['SanFrancisco',.11,1.3],['Boston',.1,1.3],['Seattle',.1,1.2],['Denver',.12,1.1],['WestTexNewMexico',.2,1.0]];
+DATA={conventional:{},organic:{}};
+for(const t in DATA)for(const[r,v,b]of regs){DATA[t][r]=[];for(let i=0;i<169;i++){const d=new Date(Date.UTC(2015,0,4+7*i)),doy=(d-Date.UTC(d.getUTCFullYear(),0,1))/864e5;
+const p=b+(t=='organic'?.45:0)+.13*Math.cos(2*Math.PI*(doy-260)/365)+(.45+v)*Math.exp(-(((i-136)/8)**2))+(R()-.5)*2*v;DATA[t][r].push({d,p:+p.toFixed(2)})}}}
+function load(txt){try{txt=txt.replace(/^\uFEFF/,'');const L=txt.trim().split(/\r?\n/),dl=(L[0].match(/;/g)||[]).length>(L[0].match(/,/g)||[]).length?';':',',sp=l=>l.split(dl).map(s=>s.replace(/"/g,'').trim()),H=sp(L[0]).map(s=>s.toLowerCase()),ix=n=>H.indexOf(n),D=ix('date'),P=ix('averageprice'),T=ix('type'),G=ix('region');
+if([D,P,T,G].some(x=>x<0))return st('❌ Nem találom a Date / AveragePrice / type / region oszlopokat. Fejléc: '+H.join(' | '),1);
+const o={};let c0=0;for(let k=1;k<L.length;k++){const c=sp(L[k]);if(c.length<H.length)continue;const p=+c[P].replace(',','.'),d=new Date(c[D]);if(isNaN(p)||isNaN(d))continue;((o[c[T]]??={})[c[G]]??=[]).push({d,p});c0++}
+if(!c0)return st('❌ Nem sikerült sort beolvasni (dátum/ár formátum?).',1);
+for(const t in o)for(const g in o[t])o[t][g].sort((a,b)=>a.d-b.d);DATA=o;DEMO=false;init();st('✅ Betöltve: '+c0+' sor, '+Object.keys(o).length+' típus.')}catch(e){st('❌ Hiba: '+e.message,1)}}
+function st(m,bad){const w=$('warn');w.style.display='';w.innerHTML=m;w.style.borderColor=bad?'var(--r)':'var(--g)'}
+function bt(s,m,h){const p=s.map(x=>x.p),o=[];for(let i=52;i+h<p.length;i++){const f=M[m](p,i,h),a=p[i+h];o.push({k:i+h,f,a,e:Math.abs(f-a)/a})}return o}
+const avg=a=>a.reduce((x,y)=>x+y,0)/(a.length||1);
+function init(){if(DEMO)$('warn').style.display='';$('ty').innerHTML=Object.keys(DATA).map(t=>`<option>${t}</option>`).join('');
+const rs=Object.keys(DATA[$('ty').value]);$('rg').innerHTML=rs.map(r=>`<option${r=='TotalUS'?' selected':''}>${r}</option>`).join('');render()}
+function line(pts,W,H,c,dash,mn,mx,n){return`<polyline fill="none" stroke="${c}" stroke-width="2" ${dash?'stroke-dasharray="5 4"':''} points="${pts.map(([k,y])=>`${(40+k/(n-1)*(W-50)).toFixed(1)},${(H-24-(y-mn)/(mx-mn)*(H-40)).toFixed(1)}`).join(' ')}"/>`}
+function render(){const ty=$('ty').value,rg=$('rg').value,m=$('md').value,h=+$('hz').value,s=DATA[ty][rg],n=s.length,r=bt(s,m,h),mp=avg(r.map(x=>x.e))*100;
+const W=900,H=320,all=[...s.map(x=>x.p),...r.map(x=>x.f)],mn=Math.min(...all)*.95,mx=Math.max(...all)*1.05,sx=(W-50)/(n-1),thr=2*avg(r.map(x=>x.e));
+let sv=`<svg viewBox="0 0 ${W} ${H}">`;for(let g=0;g<=4;g++){const y=H-24-g/4*(H-40);sv+=`<line x1="40" x2="${W-10}" y1="${y}" y2="${y}" stroke="var(--ln)"/><text x="4" y="${y+4}" font-size="11" fill="var(--mut)">$${(mn+g/4*(mx-mn)).toFixed(2)}</text>`}
+r.forEach(x=>{if(x.e>thr)sv+=`<rect x="${40+x.k*sx-sx/2}" y="14" width="${sx}" height="${H-38}" fill="var(--r)" opacity=".2"/>`});
+for(let y=2015;y<=2018;y++){const k=s.findIndex(x=>x.d.getUTCFullYear()==y);if(k>=0)sv+=`<text x="${40+k*sx}" y="${H-6}" font-size="11" fill="var(--mut)">${y}</text>`}
+sv+=line(s.map((x,k)=>[k,x.p]),W,H,'var(--tx)',0,mn,mx,n)+line(r.map(x=>[x.k,x.f]),W,H,'var(--g)',1,mn,mx,n)+'</svg>';$('ch').innerHTML=sv;
+const mo=Array.from({length:12},()=>[]);r.forEach(x=>mo[s[x.k].d.getUTCMonth()].push(x.e*100));const ma=mo.map(a=>avg(a)),mm=Math.max(...ma),bi=ma.indexOf(mm),wi=ma.indexOf(Math.min(...ma.filter((_,i)=>mo[i].length)));
+$('mo').innerHTML=`<svg viewBox="0 0 400 190">${ma.map((v,i)=>{const hh=mo[i].length?v/mm*130:0;return`<rect x="${12+i*32}" y="${150-hh}" width="24" height="${hh}" rx="4" fill="${i==bi?'var(--r)':'var(--g2)'}"/><text x="${24+i*32}" y="168" font-size="10" text-anchor="middle" fill="var(--mut)">${HU[i]}</text><text x="${24+i*32}" y="${144-hh}" font-size="9" text-anchor="middle" fill="var(--tx)">${mo[i].length?v.toFixed(0):''}</text>`}).join('')}</svg>`;
+const hs=Array.from({length:12},(_,i)=>avg(bt(s,m,i+1).map(x=>x.e))*100),hx=Math.max(...hs);
+$('hc').innerHTML=`<svg viewBox="0 0 400 190"><polyline fill="none" stroke="var(--r)" stroke-width="2.5" points="${hs.map((v,i)=>`${30+i*32},${160-v/hx*130}`).join(' ')}"/>${hs.map((v,i)=>`<circle cx="${30+i*32}" cy="${160-v/hx*130}" r="${i+1==h?6:3}" fill="${i+1==h?'var(--g)':'var(--r)'}"/><text x="${30+i*32}" y="178" font-size="10" text-anchor="middle" fill="var(--mut)">${i+1}h</text>`).join('')}<text x="30" y="${150-hs[0]/hx*130}" font-size="10" fill="var(--tx)">${hs[0].toFixed(1)}%</text><text x="${30+11*32}" y="${150-hs[11]/hx*130}" font-size="10" text-anchor="end" fill="var(--tx)">${hs[11].toFixed(1)}%</text></svg>`;
+let wk=0,wv=-1;for(let i=0;i+8<=r.length;i++){const a=avg(r.slice(i,i+8).map(x=>x.e));if(a>wv){wv=a;wk=i}}
+const w0=s[r[wk].k].d,w1=s[r[Math.min(wk+7,r.length-1)].k].d,fd=d=>d.toISOString().slice(0,10);
+const sc=Math.max(0,Math.round(100-mp*5)),tier=sc>=85?['Jósnő üzemmód 🔮','Szinte unalmasan pontos.']:sc>=70?['Egész jó, de házat ne tegyél rá 🏠','Trendre jó, sokkra vak.']:sc>=50?['Teafűolvasás statisztikai köntösben 🍵','A modell sejt valamit, de nem biztos benne.']:['Szerencsekerék avokádóval 🎰','Dobj fel egy érmét, ugyanennyire jó.'];
+$('kp').innerHTML=[['MAPE',mp.toFixed(1)+'%',`${h} hetes horizont`],['Guac-score',sc+'/100',tier[0]],['Legrosszabb 8 hét',fd(w0).slice(0,7),`${fd(w0)} → ${fd(w1)}: ${(wv*100).toFixed(0)}% átl. hiba`],['Legrosszabb hónap',HU[bi],`${mm.toFixed(1)}% vs. legjobb: ${HU[wi]} ${ma[wi].toFixed(1)}%`]].map(([a,b,c])=>`<div class="card"><div class="k">${a}</div><div class="v">${b}</div><div class="s">${c}</div></div>`).join('');
+const rk=Object.keys(DATA[ty]).map(g=>[g,avg(bt(DATA[ty][g],m,h).map(x=>x.e))*100]).sort((a,b)=>b[1]-a[1]),rx=rk[0][1];
+$('rk').innerHTML=rk.map(([g,v])=>`<div class="rg" data-g="${g}" style="${g==rg?'font-weight:700':''}"><span>${g}</span><i style="width:${v/rx*100}%"></i><span>${v.toFixed(1)}%</span></div>`).join('');
+document.querySelectorAll('.rg').forEach(e=>e.onclick=()=>{$('rg').value=e.dataset.g;render()});
+$('vd').innerHTML=`<h2>Ítélet</h2><p><b>${tier[0]}</b> ${tier[1]} ${rg} / ${ty}: átlagosan ${mp.toFixed(1)}%-ot tévedünk ${h} hétre előre; a hiba a horizonttal ${hs[0].toFixed(1)}%-ról ${hs[11].toFixed(1)}%-ra nő 12 hétre. A szezonalitás (nyár végi drágulás) jól fogható, a <b>${fd(w0)}</b> körüli ellátási sokk viszont nem: ilyenkor a modell a tavalyi mintát játssza vissza, miközben a piac mást csinál – ezért épül a pánik zóna. Legnehezebb hónap: <b>${HU[bi]}</b>. Legkiszámíthatatlanabb régió: <b>${rk[0][0]}</b>, legnyugodtabb: <b>${rk[rk.length-1][0]}</b>.</p>`}
+['ty','md','hz'].forEach(i=>$(i).onchange=()=>{if(i=='ty'){const rs=Object.keys(DATA[$('ty').value]);$('rg').innerHTML=rs.map(r=>`<option${r=='TotalUS'?' selected':''}>${r}</option>`).join('')}render()});
+$('rg').onchange=render;
+$('f').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>load(r.result);r.onerror=()=>st('❌ Fájl olvasási hiba',1);r.readAsText(f);e.target.value=''};
+demo();init();
+</script></body></html>
