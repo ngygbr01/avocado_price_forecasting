@@ -1,0 +1,35 @@
+OpenAI Codex - GPT-6.2 Sol (medium)
+
+Egy egyetemi beadandón dolgozom, amelyben az amerikai avokádóárakat elemzem. A munkát a main.ipynb notebookban végzem. 
+
+A már beolvasott fájlban 18 249 sor és 14 oszlop van. Az adatok 2015. január 4-től 2018. március 25-ig tartanak. Egy sor egy adott hét, terület és avokádótípus adatait tartalmazza. 
+
+Kérdés: Mennyire jelezhető előre a hagyományos avokádó következő heti ára, és melyik heteken hibáznak a legtöbbet a módszerek?
+
+Az adatok már beolvastam, az oszlopokat nézd át és egészítsd ki:
+
+- Ellenőrizd az üres mezőket, az ismétlődő dátum–régió–típus kulcsokat és azokat a kombinációkat, amelyekhez teljes sor hiányzik. Nézd meg, hogy a dátumok vasárnapra esnek-e, a dátumból kapott év egyezik-e a year oszloppal, és minden ár pozitív-e.
+- A kördiagramon jelenjen meg, hány teljes heti árpár tartozik a nyolc nagy régióhoz, a 45 részletes piachoz és az országos összesítéshez. A közepén az összes pár száma, a jelmagyarázatban a csoportok darabszáma és százaléka szerepeljen.
+- Az országos ábra felső részén legyen a TotalUS tényleges heti ára és a 13 hetes mozgóátlag. Utóbbi minden pontja az adott hét és az előző 12 hét átlaga. Jelöld függőleges vonallal 2017. január 1-jét, a régiós teszt kezdetét.
+- Az országos ábra alsó részén legyen külön vonal 2015, 2016 és 2017 havi átlagáraihoz. A heteket a vasárnapi dátumuk alapján rendeld hónaphoz.
+- Külön vízszintes oszlopdiagramon mutasd meg a nyolc régió 2015–2016-os hagyományos átlagárát. Ehhez mind a 104 hetet vedd figyelembe. Az oszlopokat rendezd ár szerint, és írd melléjük az értékeket USD/db-ban.
+
+Modellek tesztjei:
+- A két regresszió 2015 és 2016 adataiból tanuljon. A teszt 2017. január 1-től 2018. március 25-ig tartson.
+- Régiónként rendezd a sorokat dátum szerint, és a shift(1) művelettel add hozzá az előző heti árat. Ellenőrizd, hogy a szomszédos megfigyelések között hét nap telik el. A tanításra elérhető 832 sorból régiónként az első esik ki, mert ahhoz még nincs előző heti ár. Így 824 tanítósor marad.
+- A naiv módszer egyszerűen ismételje meg a régió előző heti tényleges árát.
+- Az első regresszió kapja meg a hétindexet, a hónapot és a régiót. A hónapokat és a régiókat a get_dummies() segítségével alakítsd 0–1 értékű jelzőkké. Magyarázd el, miért január és California a viszonyítási pont.
+- A második regresszió az előző heti tényleges árat is kapja meg. A két regressziót külön illeszd. Mindhárom módszert ugyanazon az 520 teszteseten (65 hét × 8 régió)é rtékeld.
+- Egy valódi héten mutasd meg mindhárom becslés behelyettesítését. Erre jó a GreatLakes 2017. március 5-i sora. Legyen világos, melyik számot olvassuk ki a CSV-ből, melyiket számoljuk a dátumból, és melyik együtthatót tanulja meg a regresszió.
+
+Hibák értékelése:
+- A teljes tesztre számolj MAE-t, RMSE-t és átlagos előjeles hibát. Külön táblázatban legyen régiónkénti MAE is. A teljes teszt MAE-jét mutasd meg egy sávdiagramon cent/db-ban.
+- Készíts idősoros ábrát a tesztidőszak nyolc régiós tényleges heti átlagáráról és a három módszer heti átlagbecsléséről. A négy vonal legyen jól megkülönböztethető.
+- A heti MAE-t az adott hét nyolc régiós abszolút hibájából számold. Módszerenként add meg a három legnagyobb heti MAE-jű dátumot, az átlagos előjeles hibát, a tényleges átlagárat és a becslések átlagát.
+- Kiegészítésként legyen havi hibatábla is a tesztidőszakra. A hónaponkénti MAE és előjeles átlaghiba mellett szerepeljen, hány megfigyelésből számoltad őket. 
+
+A kód mellé rövid magyar módszerleírást kérek arról, hogy miből jönnek az értékek és mit jelölnek az ábrák tengelyei, hogy tudjam ellenőrizni. A táblázatok és ábrák után hagyj üres „Saját értelmezés” részt. 
+
+Későbbi üzenetek:
+1. Mutasd meg konkrét számpéldával, miért számolok teljes és heti MAE-t is.
+2. A mentéshez az ábránként szükséges fig.savefig sort add meg a már meglévő FIG_PATH útvonallal.

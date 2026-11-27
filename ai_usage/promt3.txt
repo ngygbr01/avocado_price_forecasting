@@ -1,0 +1,35 @@
+OpenAI Codex - GPT-6.2 Sol (medium)
+
+Egy egyetemi beadandón dolgozom, amelyben az amerikai avokádóárakat elemzem. A munkát a main.ipynb notebookban végzem. 
+
+A már beolvasott fájlban 18 249 sor és 14 oszlop van. Az adatok 2015. január 4-től 2018. március 25-ig tartanak. Egy sor egy adott hét, terület és avokádótípus adatait tartalmazza. 
+
+Kérdés: Hasonló időszakokban volt-e magas a hagyományos és a bioavokádó ára? Amikor egyik hétről a másikra változtak az árak, milyen gyakran mozdultak ugyanabba az irányba?
+
+A beadandó első részében a hagyományos avokádó árát becsültem, a másodikban a bio felárát számoltam ki. A harmadik kérdéshez ugyanazokat a heti árpárokat szeretném felhasználni, amelyeket a felárnál már elkészítettem a main.ipynb notebookban. A regional_prices táblában az azonos régióhoz és dátumhoz tartozó két ár egymás mellett van. Minden régióban 169 teljes heti árpár szerepel.
+
+
+
+Árszintek, heti változások számítása:
+- A hagyományos és a bioár heti árszintjére számolj Pearson-korrelációt külön-külön mind a nyolc régióban. Minden összehasonlításban azonos dátumhoz tartozzon a két ár.
+- A heti változáshoz váltsd az árakat egész centre. Régiónként és dátum szerint haladva vond ki a tárgyheti árból az előző heti árat. Ellenőrizd, hogy a megfigyelt hetek egymást követik. A 169 árszintpárból régiónként 168 változáspár lesz.
+- Számolj külön Pearson-korrelációt a két heti változássorra is. A nulla változásokat ennél a számításnál is vedd figyelembe.
+- A módszer rövid leírásában add meg, hogy az árszintek és a heti változások korrelációja milyen értékekből készül. 
+
+Ábrák:
+
+Kérek egy Hőtérképet, egy sor egy régió legyen, az első oszlopban a heti árszintek, a másodikban a heti változások korrelációja szerepeljen. A két oszlop ugyanazt a −1 és +1 közötti színskálát használja. A cellákba írd bele az értékeket, tizedesre kerekítve. Az ábra alatt add meg, hogy balra régiónként 169, jobbra 168 párból készül a számítás.
+Heti változások iránya:
+- Minden változáspárt sorolj a négy csoport egyikébe. Mindkettő emelkedett, mindkettő csökkent, ellentétes irányba változtak, vagy legalább az egyik ár változatlan maradt.
+- Add meg a csoportok darabszámát régiónként és összesen. A négy kategória összege régiónként 168, a nyolc régióban együtt 1 344 legyen.
+- Az azonos irányú esetekhez add össze az együtt emelkedéseket és az együtt csökkenéseket. A százalékot azokhoz az esetekhez viszonyítsd, amikor mindkét ár változott. Az összes változáspárból készített arányhoz külön írd ki a nevezőt, ha azt is megadod.
+- Egy konkrét példán mutasd meg a besorolást. GreatLakesben 2017. február 26. és március 5. között a hagyományos ár 1,08-ról 1,24 USD/db-ra emelkedett, a bioár 0,94-ről 0,83 USD/db-ra csökkent. A +16 és −11 centes változás ellentétes irányú eset.
+
+Készíts külön vízszintes, halmozott sávdiagramot a hőtérképpel azonos régiós sorrendben a változáspárok irányának. Minden sáv egy régió 168 változáspárját mutassa. A négy kategória kapjon külön színt, és a sávokon belül jelenjen meg a darabszám. A sávok mellé kerüljön az azonos irányú esetek százaléka, azzal a fejléccel, hogy „Azonos irány, ha mindkét ár változott”.
+
+A hiányzó kódcellákat add meg futtatási sorrendben. Az ábrák mellé röviden írd le, mit jelölnek a színek, a számok és a százalék nevezője. Mindkét ábra alatt hagyj üres „Saját értelmezés” részt. Az eredmények összehasonlítását és a végső választ én írom meg. A notebookot hagyd változatlanul.
+
+Későbbi üzenetek:
+1. A hőtérkép felirata "A hagyományos és a bioavokádó árának együttjárása" legyen.
+2. A sávdiagram halamzainak színe jobban üssenek el egymástól, hogy jabban elkülöníthető legyen.
+3. A példáknál külön kezeld a Pearson-korrelációt és az azonos irányú változások arányát. 

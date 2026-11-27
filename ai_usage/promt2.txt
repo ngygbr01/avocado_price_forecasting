@@ -1,0 +1,32 @@
+OpenAI Codex - GPT-6.2 Sol (medium)
+
+Egy egyetemi beadandón dolgozom, amelyben az amerikai avokádóárakat elemzem. A munkát a main.ipynb notebookban végzem. 
+
+A már beolvasott fájlban 18 249 sor és 14 oszlop van. Az adatok 2015. január 4-től 2018. március 25-ig tartanak. Egy sor egy adott hét, terület és avokádótípus adatait tartalmazza. 
+
+Kérdés: Mekkora a bioavokádó felára ugyanazon a héten és ugyanabban a régióban, és hogyan változik a felár régiók és évek szerint?
+
+A notbookban az árpárokat már létrehoztam, nézd át , értelmezd és azokkal dolgozz a továbbiakban.
+
+Számítás:
+- Egy sorba kerüljön az azonos hét és régió hagyományos és bioára. Ellenőrizd, hogy régiónként mind a 169 hét megvan, így összesen 1 352 árpár szerepel a vizsgálatban.
+- A dollárfelár a bioár mínusz a hagyományos ár. A százalékos felárhoz a különbséget oszd el a hagyományos árral, majd szorozd százzal. Ellenőrizd, hogy a hagyományos ár minden felhasznált párban pozitív.
+- Mutasd meg a képletet egyszerű példán. Ha a bioár 1,50 USD/db és a hagyományos ár 1,00 USD/db, akkor a felár 0,50 USD/db, vagyis 50%.
+- Minden heti régiós pár azonos súlyt kapjon. A dollárfelár mediánját a dollárban vett különbségekből, a százalékos mediánt a külön-külön kiszámolt százalékokból képezd.
+
+Táblázatok:
+- Összesítve kérem az árpárok számát, az átlagos és medián dollárfelárat, a százalékos felár mediánját, valamint a pozitív, nulla és negatív esetek számát. Ellenőrizd, hogy ez a három darabszám együtt kiadja az 1 352 párt.
+- Régiónként szerepeljen a párok száma, a dollárfelár átlaga és mediánja, a százalékos felár mediánja és a pozitív felárú párok aránya.
+- Az éves összehasonlításhoz legyen egy táblázat a teljes 2015–2017-es évekre és egy a négy január–márciusi időszakra. Mindkettőben szerepeljen a darabszám, a kétféle medián és a pozitív felárú párok aránya. Az év eleji időszakhoz 2015–2017-ben évente 104, 2018-ban 96 árpár tartozik.
+
+Ábrák:
+1. Egy vízszintes dobozdiagramot kérek a régiók heti dollárfeláráról. A vízszintes tengely egysége USD/db legyen, a nullát pedig jelöld külön. Az ábra alatt nevezd meg, hol látható a medián és a két kvartilis.
+2. Egy vízszintes oszlopdiagramon mutasd a százalékos felár mediánját régiónként. A sávok mellé írd ki a százalékos értékeket.
+3. Vonaldiagramon mutasd meg a dollárfelár havi mediánját. Egy hónap értékét az oda tartozó heti régiós árpárokból számold.
+4. Az éves összevetést két panelen mutasd meg, közös függőleges skálán. Balra legyen a három teljes év, jobbra a négy január–márciusi időszak. A medián dollárfelárat írd az oszlopokra.
+
+A meglévő számításokból indulj ki, és a szükséges új cellákat futtatási sorrendben add meg. Az ábrák alatt írd le röviden a számítás módját, a tengelyeket és a mértékegységeket. A régiós különbségek és az éves változások értelmezését én fogom megírni, ezért ezeknek hagyj üres helyet. A notebookot hagyd változatlanul.
+
+Későbbi üzenetek:
+1. Kérek régiónként egy egy vonaldiagrammot amin a hagyományos és bio árak vannaalakulását látom a neve "A hagyományos és a bioavokádó heti ára nyolc régióban".
+2. Az árábráknál más színeket használj és az ábrákat a figures mappába mentsd.
