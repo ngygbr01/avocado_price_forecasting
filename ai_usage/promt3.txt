@@ -8,8 +8,6 @@ Kérdés: Hasonló időszakokban volt-e magas a hagyományos és a bioavokádó 
 
 A beadandó első részében a hagyományos avokádó árát becsültem, a másodikban a bio felárát számoltam ki. A harmadik kérdéshez ugyanazokat a heti árpárokat szeretném felhasználni, amelyeket a felárnál már elkészítettem a main.ipynb notebookban. A regional_prices táblában az azonos régióhoz és dátumhoz tartozó két ár egymás mellett van. Minden régióban 169 teljes heti árpár szerepel.
 
-
-
 Árszintek, heti változások számítása:
 - A hagyományos és a bioár heti árszintjére számolj Pearson-korrelációt külön-külön mind a nyolc régióban. Minden összehasonlításban azonos dátumhoz tartozzon a két ár.
 - A heti változáshoz váltsd az árakat egész centre. Régiónként és dátum szerint haladva vond ki a tárgyheti árból az előző heti árat. Ellenőrizd, hogy a megfigyelt hetek egymást követik. A 169 árszintpárból régiónként 168 változáspár lesz.

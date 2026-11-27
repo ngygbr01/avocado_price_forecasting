@@ -32,4 +32,4 @@ A kód mellé rövid magyar módszerleírást kérek arról, hogy miből jönnek
 
 Későbbi üzenetek:
 1. Mutasd meg konkrét számpéldával, miért számolok teljes és heti MAE-t is.
-2. A mentéshez az ábránként szükséges fig.savefig sort add meg a már meglévő FIG_PATH útvonallal.
+2. Az ábrakhoz írd meg a mentést a FIG_PATH útvonallal.

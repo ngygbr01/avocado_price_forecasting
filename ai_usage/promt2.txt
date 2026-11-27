@@ -29,4 +29,4 @@ A meglévő számításokból indulj ki, és a szükséges új cellákat futtat�
 
 Későbbi üzenetek:
 1. Kérek régiónként egy egy vonaldiagrammot amin a hagyományos és bio árak vannaalakulását látom a neve "A hagyományos és a bioavokádó heti ára nyolc régióban".
-2. Az árábráknál más színeket használj és az ábrákat a figures mappába mentsd.
+2. Az árábráknál más színeket használj és az ábrákat a figures mappába mentsd, aFIG_PATH útvonallal.
